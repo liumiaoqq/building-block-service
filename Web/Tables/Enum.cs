@@ -419,18 +419,6 @@ namespace Web.Tables
 
 
     /// <summary>
-    /// 项目案例类型
-    /// </summary>
-    public enum ProjectCaseType
-    {
-        [Description("基础脚手架")]
-        基础脚手架 = 0,
-
-        [Description("完整脚手架")]
-        完整脚手架 = 1,
-
-    }
-    /// <summary>
     /// 项目亮点环境
     /// </summary>
     public enum ProjectHighlightEnvironment
@@ -445,24 +433,6 @@ namespace Web.Tables
     }
 
 
-
-
-    /// <summary>
-    /// 项目服务业务订单状态
-    /// </summary>
-    public enum ProjectServiceBusinessOrderStatus
-    {
-        [Description("关闭")]
-        关闭 = 0,
-
-        [Description("待支付")]
-        待支付 = 1,
-        [Description("待服务")]
-        待服务 = 2,
-        [Description("服务完成")]
-        服务完成 = 3,
-
-    }
 
 
     /// <summary>
@@ -492,24 +462,6 @@ namespace Web.Tables
         微信 = 3,
 
     }
-    /// <summary>
-    /// 审核状态
-    /// </summary>
-    public enum CourseAuditStatus
-    {
-        [Description("待提交")]
-        待提交 = 0,
-        [Description("审核中")]
-        审核中 = 1,
-        [Description("审核拒绝")]
-        审核拒绝 = 2,
-        [Description("审核通过")]
-        审核通过 = 3,
-
-        [Description("作废")]
-        作废 = 4,
-    }
-
     /// <summary>
     /// 画图类型
     /// </summary>
