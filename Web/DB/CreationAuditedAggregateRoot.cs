@@ -8,7 +8,7 @@ namespace Web
     /// </summary>
     public abstract class CreationAuditedAggregateRoot 
     {
-        [SugarColumn(IsPrimaryKey = true,ColumnDataType = "uniqueidentifier")]
+        [SugarColumn(IsPrimaryKey = true, ColumnDataType = "char(36)")]
         public virtual Guid Id { get; set; }
         public virtual DateTime CreationTime
         {

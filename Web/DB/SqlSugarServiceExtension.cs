@@ -105,7 +105,7 @@ namespace Web
             allMainConnectionConfigList.Add(new ConnectionConfig()
             {
                 ConnectionString = configuration["ConnectionStrings:Default"].ToString(),//Master Connection
-                DbType = SqlSugar.DbType.SqlServer,
+                DbType = SqlSugar.DbType.MySql,
                 InitKeyType = InitKeyType.Attribute,
                 IsAutoCloseConnection = true,
                 AopEvents = new AopEvents
@@ -151,7 +151,7 @@ namespace Web
                         if (property.PropertyType == typeof(string))
                         {
 
-                            column.DataType = "nvarchar(Max)";
+                            column.DataType = "longtext";
                             column.IsNullable = true;
                         }
 

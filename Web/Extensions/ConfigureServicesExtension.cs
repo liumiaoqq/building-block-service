@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Hangfire;
-using Hangfire.SqlServer;
+using Hangfire.MySql;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -13,6 +13,7 @@ using System.Configuration;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using System.Transactions;
 using YouJu.Infrastructure;
 
 namespace Web
@@ -103,14 +104,17 @@ namespace Web
                 .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
                 .UseSimpleAssemblyNameTypeSerializer()
                 .UseRecommendedSerializerSettings()
-                .UseSqlServerStorage(configuration["Hangfire:ConnectionStrings"], new SqlServerStorageOptions
+                .UseStorage(new MySqlStorage(configuration["Hangfire:ConnectionStrings"], new MySqlStorageOptions
                 {
-                    CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
-                    SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
-                    QueuePollInterval = TimeSpan.Zero,
-                    UseRecommendedIsolationLevel = true,
-                    DisableGlobalLocks = true
-                }));
+                    TransactionIsolationLevel = IsolationLevel.ReadCommitted,
+                    QueuePollInterval = TimeSpan.FromSeconds(15),
+                    JobExpirationCheckInterval = TimeSpan.FromHours(1),
+                    CountersAggregateInterval = TimeSpan.FromMinutes(5),
+                    PrepareSchemaIfNecessary = true,
+                    DashboardJobListLimit = 50000,
+                    TransactionTimeout = TimeSpan.FromMinutes(1),
+                    TablesPrefix = "Hangfire"
+                })));
 
             // Add the processing server as IHostedService
             services.AddHangfireServer();
