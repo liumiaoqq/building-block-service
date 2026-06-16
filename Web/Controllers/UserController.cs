@@ -49,6 +49,7 @@ namespace Web.Controllers
                 .WhereIF(input.RoleIds.HasValue, x => x.RoleIds == input.RoleIds.Value)
             .WhereIF(input.UserName.IsNotNullOrNotWhiteSpace(), x => x.UserName.Contains(input.UserName))
                  .WhereIF(input.Name.IsNotNullOrNotWhiteSpace(), x => x.Name.Contains(input.Name))
+                  .WhereIF(input.InviteCode.IsNotNullOrNotWhiteSpace(), x => x.InviteCode.Contains(input.InviteCode))
                   .WhereIF(input.Email.IsNotNullOrNotWhiteSpace(), x => x.Email.Contains(input.Email))
                         .WhereIF(input.PhoneNumber.IsNotNullOrNotWhiteSpace(), x => x.PhoneNumber.Contains(input.PhoneNumber))
 
@@ -96,7 +97,9 @@ namespace Web.Controllers
                 {
                     throw new YouJuException("该用户名称已经存在");
                 }
-                user = await SqlSugarClient.Queryable<AppUser>().FirstAsync(x => x.PhoneNumber == input.PhoneNumber);
+                user = input.PhoneNumber.IsNotNullOrNotWhiteSpace()
+                    ? await SqlSugarClient.Queryable<AppUser>().FirstAsync(x => x.PhoneNumber == input.PhoneNumber)
+                    : null;
                 if (user is not null)
                 {
                     throw new YouJuException("该手机号已经存在");
@@ -110,7 +113,7 @@ namespace Web.Controllers
             else
             {
                 var user = await SqlSugarClient.Queryable<AppUser>().FirstAsync(x => x.Id == input.Id);
-                if (user.PhoneNumber != input.PhoneNumber)
+                if (input.PhoneNumber.IsNotNullOrNotWhiteSpace() && user.PhoneNumber != input.PhoneNumber)
                 {
                     if (await SqlSugarClient.Queryable<AppUser>().CountAsync(x => x.Id != input.Id && x.PhoneNumber == input.PhoneNumber) > 0)
                     {
@@ -145,9 +148,11 @@ namespace Web.Controllers
 
         public async Task<PagedReuslt<SelectResult>> GetRole()
         {
-            var roles = new List<SelectResult>();
-
-            roles = typeof(RoleType).GetEnumList().Select(x => new SelectResult() { Name = x.Key, Value = x.Value }).ToList();
+            var roles = new List<SelectResult>
+            {
+                new SelectResult { Name = "管理员", Value = ((int)RoleType.系统管理员).ToString() },
+                new SelectResult { Name = "用户", Value = ((int)RoleType.用户).ToString() }
+            };
             return new PagedReuslt<SelectResult>(roles, roles.Count);
 
         }

@@ -155,7 +155,6 @@ namespace Web
             services.AddTransient<SystemComponentRuleManager, SystemComponentRuleManager>();
             services.AddTransient<SqlTempleteManager, SqlTempleteManager>();
             services.AddTransient<SqlParseRecordManager>();
-            services.AddTransient<SequenceDiagramSessionManager, SequenceDiagramSessionManager>();
             services.AddTransient<ContactInfoManager, ContactInfoManager>();
 
 
@@ -172,7 +171,6 @@ namespace Web
             services.AddTransient<ComponentService, ComponentService>();
             services.AddTransient<SqlTempleteService, SqlTempleteService>();
             services.AddTransient<SqlParseRecordService>();
-            services.AddTransient<SequenceDiagramSessionService, SequenceDiagramSessionService>();
             services.AddTransient<ContactInfoService, ContactInfoService>();
 
 

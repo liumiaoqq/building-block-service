@@ -26,9 +26,6 @@ namespace Web.HttpClient
         [Description("代码模块分类")]
         CodeModuleClassification = 7,
 
-        [Description("PlantUML时序图生成")]
-        PlantUMLSequenceDiagramGeneration = 8,
-
         [Description("枚举绑定")]
         EnumBinding = 9,
 

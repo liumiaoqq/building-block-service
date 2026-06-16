@@ -416,29 +416,6 @@ namespace Web.HttpClientApi.DeepSeek.Service
 
                 return content;
             }
-            else if (deepSeekSystemPrompt == DeepSeekSystemPrompt.PlantUMLSequenceDiagramGeneration)
-            {
-                content = @"您是一个专业的软件工程师和时序分析专家，请根据用户提供的代码项目结构和具体需求，分析代码交互逻辑并生成PlantUML时序图语法，输出为JSON格式。
-
-                请遵循以下原则：
-                1. 仔细分析代码中各组件、类、服务之间的交互和调用关系
-                2. 识别关键的参与者（Actor）、对象、服务等
-                3. 生成清晰、准确的PlantUML时序图语法
-                4. 使用PlantUML标准语法：@startuml开始，@enduml结束
-                5. 合理使用participant、actor、->、-->、activate、deactivate等语法
-                6. 体现完整的调用链路和交互时序
-                7. 为复杂交互提供简要说明
-                
-                示例JSON输出格式：
-                {
-                    ""PlantUMLCode"": ""@startuml\nactor 用户\nparticipant 前端页面\nparticipant Controller\nparticipant Service\nparticipant Database\n\n用户 -> 前端页面: 点击登录按钮\nactivate 前端页面\n前端页面 -> Controller: POST /login\nactivate Controller\nController -> Service: 验证用户信息\nactivate Service\nService -> Database: 查询用户\nactivate Database\nDatabase --> Service: 返回用户数据\ndeactivate Database\nService --> Controller: 验证结果\ndeactivate Service\nController --> 前端页面: 返回Token\ndeactivate Controller\n前端页面 --> 用户: 登录成功\ndeactivate 前端页面\n@enduml"",
-                    ""Description"": ""这是一个用户登录的时序图，展示了从前端到后端再到数据库的完整调用链路。""
-                }
-                
-                请根据用户提供的代码项目信息和需求，分析并生成对应的PlantUML时序图。";
-
-                return content;
-            }
             else if (deepSeekSystemPrompt == DeepSeekSystemPrompt.EnumBinding)
             {
                 content = @"您是一个专业的数据库设计专家，请分析用户提供的表结构和枚举列表，智能匹配哪些列应该使用枚举类型，输出为JSON格式。
