@@ -155,18 +155,7 @@ namespace Web
             services.AddTransient<SystemComponentRuleManager, SystemComponentRuleManager>();
             services.AddTransient<SqlTempleteManager, SqlTempleteManager>();
             services.AddTransient<SqlParseRecordManager>();
-            services.AddTransient<IntegralRecordManager>();
-            services.AddTransient<InviteRecordManager>();
-            services.AddTransient<CodeSnippetManager, CodeSnippetManager>();
-            services.AddTransient<CodeManagementManager, CodeManagementManager>();
-            services.AddTransient<FlowsheetSessionManager, FlowsheetSessionManager>();
             services.AddTransient<SequenceDiagramSessionManager, SequenceDiagramSessionManager>();
-            services.AddTransient<ErDiagramSessionManager, ErDiagramSessionManager>();
-            services.AddTransient<UseCaseDiagramSessionManager, UseCaseDiagramSessionManager>();
-            services.AddTransient<DrawingBalanceManager, DrawingBalanceManager>();
-            services.AddTransient<DrawingCallRecordManager, DrawingCallRecordManager>();
-            services.AddTransient<ArticleCategoryManager, ArticleCategoryManager>();
-            services.AddTransient<ArticleManager, ArticleManager>();
             services.AddTransient<ContactInfoManager, ContactInfoManager>();
 
 
@@ -183,18 +172,7 @@ namespace Web
             services.AddTransient<ComponentService, ComponentService>();
             services.AddTransient<SqlTempleteService, SqlTempleteService>();
             services.AddTransient<SqlParseRecordService>();
-            services.AddTransient<IntegralRecordService>();
-            services.AddTransient<InviteRecordService>();
-            services.AddTransient<CodeManagementService, CodeManagementService>();
-            services.AddTransient<CodeSnippetService, CodeSnippetService>();
-            services.AddTransient<FlowsheetSessionService, FlowsheetSessionService>();
             services.AddTransient<SequenceDiagramSessionService, SequenceDiagramSessionService>();
-            services.AddTransient<ErDiagramSessionService, ErDiagramSessionService>();
-            services.AddTransient<UseCaseDiagramSessionService, UseCaseDiagramSessionService>();
-            services.AddTransient<DrawingBalanceService, DrawingBalanceService>();
-            services.AddTransient<DrawingCallRecordService, DrawingCallRecordService>();
-            services.AddTransient<ArticleCategoryService, ArticleCategoryService>();
-            services.AddTransient<ArticleService, ArticleService>();
             services.AddTransient<ContactInfoService, ContactInfoService>();
 
 

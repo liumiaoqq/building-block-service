@@ -29,18 +29,12 @@ namespace Web.Controllers
 
         private readonly MailSettings _mailSettings;
 
-        private readonly InviteRecordService _inviteRecordService;
-
-        private readonly DrawingBalanceManager _drawingBalanceManager;
-
-        public UserController(IServiceProvider serviceProvider, IMailService mailService, ILogger<UserController> logger, IOptions<MailSettings> mailSettings, InviteRecordService inviteRecordService, DrawingBalanceManager drawingBalanceManager) : base(serviceProvider)
+        public UserController(IServiceProvider serviceProvider, IMailService mailService, ILogger<UserController> logger, IOptions<MailSettings> mailSettings) : base(serviceProvider)
         {
             jwtHelper = ServiceProvider.GetRequiredService<IJwtHelper>();
             _mailService = mailService;
             _logger = logger;
             _mailSettings = mailSettings.Value;
-            _inviteRecordService = inviteRecordService;
-            _drawingBalanceManager = drawingBalanceManager;
         }
 
 
@@ -376,17 +370,6 @@ namespace Web.Controllers
             {
                 throw new YouJuException("该用户名已经存在");
             }
-            //如果邀请码不为空则需要验证是否存在这个邀请码
-            AppUser inviteUser = null;
-            if (input.InviteCode.IsNotNullOrNotWhiteSpace())
-            {
-
-                inviteUser = await SqlSugarClient.Queryable<AppUser>().FirstAsync(x => x.InviteCode == input.InviteCode);
-                if (inviteUser == null)
-                {
-                    throw new YouJuException("该邀请码不存在");
-                }
-            }
 
             emailValidCode.IsUse = true;
             await SqlSugarClient.Updateable(emailValidCode).ExecuteCommandAsync();
@@ -403,15 +386,6 @@ namespace Web.Controllers
 
             };
             await SqlSugarClient.Insertable(createUser).ExecuteCommandAsync();
-
-
-            //如果存在邀请码
-            if (input.InviteCode.IsNotNullOrNotWhiteSpace())
-            {
-
-                await _inviteRecordService.RegisterInviteAsync(input.InviteCode, createUser.Id, inviteUser.Id);
-
-            }
 
         }
 
@@ -586,40 +560,6 @@ namespace Web.Controllers
                 rs.InviteCode = await GetInviteCodeAsync();
             }
 
-            // 循环所有的DrawingType枚举，为用户创建不存在的余额
-            var allDrawingTypes = Enum.GetValues(typeof(DrawingType)).Cast<DrawingType>();
-            foreach (var drawingType in allDrawingTypes)
-            {
-                // 检查该类型的余额是否已存在
-                var existingBalance = await _drawingBalanceManager.GetEffectiveBalanceAsync(rs.Id, drawingType);
-
-                var newBalanceList = new List<DrawingBalance>();
-                // 如果不存在，则创建新的余额
-                if (existingBalance == null)
-                {
-                    var newBalance = new DrawingBalance
-                    {
-                        UserId = rs.Id,
-                        DrawingType = drawingType,
-                        EffectiveTime = DateTime.Now,
-                        ExpirationTime = DateTime.Now.AddYears(1), // 有效期7天
-                        MaxDailyGenerations = 100, // 每天最大生成次数
-                        IsEnabled = true
-                    };
-                    if (drawingType == DrawingType.ER图)
-                    {
-                        newBalance.MaxDailyGenerations = 999;
-                    }
-                    //插入数据库
-                    newBalanceList.Add(newBalance);
-                }
-
-                if (newBalanceList.Count > 0)
-                {
-                    await SqlSugarClient.Insertable(newBalanceList).ExecuteCommandAsync();
-                }
-            }
-
             await SqlSugarClient.Updateable(rs).ExecuteCommandAsync();
 
             return new
@@ -658,6 +598,7 @@ namespace Web.Controllers
             return inviteCode;
         }
         #endregion
+
 
 
 
