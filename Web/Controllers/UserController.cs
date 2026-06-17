@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Text.RegularExpressions;
 using Web.Dto.AppUsers;
 using Web.Dto.Components;
+using Web.Extensions;
 using Web.Manager;
 using Web.Service;
 using Web.Tables;
@@ -39,8 +40,7 @@ namespace Web.Controllers
 
 
         [HttpPost("ListAsync")]
-
-
+        [CustomAuthorization(RoleType.系统管理员)]
         public override async Task<PagedReuslt<AppUserDto>> ListAsync(CommPagedInput input)
         {
             RefAsync<int> totalCount = 0;
@@ -83,6 +83,7 @@ namespace Web.Controllers
             return rs;
 
         }
+        [CustomAuthorization(RoleType.系统管理员)]
         public override async Task<AppUserDto> CreateOrEditAsync(AppUserDto input)
         {
             if (!input.Id.HasValue)
@@ -145,7 +146,7 @@ namespace Web.Controllers
         }
 
         [HttpPost("GetRole")]
-
+        [CustomAuthorization(RoleType.系统管理员)]
         public async Task<PagedReuslt<SelectResult>> GetRole()
         {
             var roles = new List<SelectResult>

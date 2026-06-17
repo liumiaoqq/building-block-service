@@ -28,6 +28,7 @@ namespace Web.Tables
 
         public RoleType RoleIds { get; set; }
 
+        [SugarColumn(IsIgnore = true)]
         public string RoleName => RoleIds.ToDescription();
 
         /// <summary>

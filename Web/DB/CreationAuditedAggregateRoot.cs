@@ -16,6 +16,7 @@ namespace Web
             set;
         }
 
+        [SugarColumn(ColumnDataType = "char(36)", IsNullable = true)]
         public virtual Guid? CreatorId
         {
             get;

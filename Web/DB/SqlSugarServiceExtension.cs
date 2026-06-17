@@ -144,6 +144,11 @@ namespace Web
                             column.DataType = "decimal(18, 4)";
                         }
 
+                        if (property.PropertyType == typeof(Guid) || property.PropertyType == typeof(Guid?))
+                        {
+                            column.DataType = "char(36)";
+                        }
+
                         if (property.PropertyType.IsNullableType())
                         {
                             column.IsNullable = true;

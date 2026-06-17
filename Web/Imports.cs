@@ -13,7 +13,6 @@ global using YouJu.Infrastructure.Extensions;
 global using System.ComponentModel;
 global using YouJu.Infrastructure;
 global using Web.Dto.TableEntitys;
-global using Web.Caches;
 
 namespace Web
 {

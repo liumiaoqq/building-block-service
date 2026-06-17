@@ -1,19 +1,10 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Hangfire;
-using Hangfire.MySql;
+using Hangfire.SQLite;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json;
-using SqlSugar;
-using System.Collections.Concurrent;
-using System.Configuration;
-using System.Linq.Expressions;
-using System.Reflection;
 using System.Text;
-using System.Transactions;
 using YouJu.Infrastructure;
 
 namespace Web
@@ -22,19 +13,15 @@ namespace Web
     {
         public static IServiceCollection ConfigureCors(this IServiceCollection services)
         {
-            IConfiguration configuration = services.BuildServiceProvider().GetRequiredService<IConfiguration>();
-
             services.AddCors(p => p.AddPolicy("Default",
-           policy => policy
-
-             .AllowAnyMethod()
-             .AllowAnyOrigin()
-             .AllowAnyHeader()
-            ));
+                policy => policy
+                    .AllowAnyMethod()
+                    .AllowAnyOrigin()
+                    .AllowAnyHeader()));
 
             return services;
-
         }
+
         public static void AutoRegisterMapper(this IServiceCollection services)
         {
             var all = AssemblyExtension.AllAssemblies;
@@ -47,84 +34,80 @@ namespace Web
                     options.AddProfile(item.AsType());
                 }
             });
-
         }
+
         public static IServiceCollection ConfigureAuthentication(this IServiceCollection services)
         {
-            IConfiguration Configuration = services.BuildServiceProvider().GetRequiredService<IConfiguration>();
-            var Audience = Configuration["JwtAuthentication:Audience"];
-            var Issuer = Configuration["JwtAuthentication:Issuer"];
-            var SecureKey = Configuration["JwtAuthentication:SecureKey"];
+            IConfiguration configuration = services.BuildServiceProvider().GetRequiredService<IConfiguration>();
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                .AddJwtBearer(options =>
                {
-
-                   options.RequireHttpsMetadata = Convert.ToBoolean(Configuration["JwtAuthentication:RequireHttpsMetadata"]);
-                   options.Audience = Configuration["JwtAuthentication:Audience"];
+                   options.RequireHttpsMetadata = Convert.ToBoolean(configuration["JwtAuthentication:RequireHttpsMetadata"]);
+                   options.Audience = configuration["JwtAuthentication:Audience"];
                    options.SaveToken = true;
                    options.Events = new JwtBearerEvents()
                    {
-                       OnAuthenticationFailed = (ctx) =>
-                       {
-
-                           return Task.CompletedTask;
-                       },
-                       OnTokenValidated = async (ctx) =>
-                       {
-                           //自定义验证逻辑写入当前上下文
-                           //   await ctx.OnTokenValidated();
-                       },
-                       OnForbidden = (ctx) =>
-                       {
-
-                           return Task.CompletedTask;
-                       }
+                       OnAuthenticationFailed = (ctx) => Task.CompletedTask,
+                       OnTokenValidated = async (ctx) => { },
+                       OnForbidden = (ctx) => Task.CompletedTask
                    };
                    options.TokenValidationParameters = new TokenValidationParameters()
                    {
                        ValidateIssuerSigningKey = true,
                        ValidateIssuer = true,
                        ValidateAudience = true,
-                       ValidAudience = Configuration["JwtAuthentication:Audience"],
-                       ValidIssuer = Configuration["JwtAuthentication:Issuer"],
-
-                       IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration.GetSection("JwtAuthentication:SecureKey").ToString()))
+                       ValidAudience = configuration["JwtAuthentication:Audience"],
+                       ValidIssuer = configuration["JwtAuthentication:Issuer"],
+                       IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration.GetSection("JwtAuthentication:SecureKey").ToString()))
                    };
                });
 
-
             return services;
         }
+
         public static IServiceCollection ConfigureHangFire(this IServiceCollection services)
         {
             IConfiguration configuration = services.BuildServiceProvider().GetRequiredService<IConfiguration>();
+            var connectionString = configuration["Hangfire:ConnectionString"];
+            if (connectionString.IsNullOrWhiteSpace())
+            {
+                connectionString = "Data Source=App_Data/hangfire.db;";
+            }
 
+            var dataSource = GetSqliteDataSource(connectionString);
+            if (!string.IsNullOrWhiteSpace(dataSource))
+            {
+                var directory = Path.GetDirectoryName(Path.GetFullPath(dataSource));
+                if (!string.IsNullOrWhiteSpace(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                }
+            }
 
             services.AddHangfire(config => config
                 .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
                 .UseSimpleAssemblyNameTypeSerializer()
                 .UseRecommendedSerializerSettings()
-                .UseStorage(new MySqlStorage(configuration["Hangfire:ConnectionStrings"], new MySqlStorageOptions
+                .UseSQLiteStorage(connectionString, new SQLiteStorageOptions
                 {
-                    TransactionIsolationLevel = IsolationLevel.ReadCommitted,
                     QueuePollInterval = TimeSpan.FromSeconds(15),
                     JobExpirationCheckInterval = TimeSpan.FromHours(1),
-                    CountersAggregateInterval = TimeSpan.FromMinutes(5),
-                    PrepareSchemaIfNecessary = true,
-                    DashboardJobListLimit = 50000,
-                    TransactionTimeout = TimeSpan.FromMinutes(1),
-                    TablesPrefix = "Hangfire"
-                })));
+                    CountersAggregateInterval = TimeSpan.FromMinutes(5)
+                }));
 
-            // Add the processing server as IHostedService
             services.AddHangfireServer();
-          
-
 
             return services;
         }
 
-
-
+        private static string GetSqliteDataSource(string connectionString)
+        {
+            return connectionString
+                .Split(';', StringSplitOptions.RemoveEmptyEntries)
+                .Select(x => x.Split('=', 2))
+                .Where(x => x.Length == 2)
+                .FirstOrDefault(x => x[0].Trim().Equals("Data Source", StringComparison.OrdinalIgnoreCase))?[1]
+                .Trim();
+        }
     }
 }

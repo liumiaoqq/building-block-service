@@ -13,8 +13,6 @@ using Web.Service;
 using YouJu.Infrastructure.Email;
 using YouJu.Infrastructure.JWT;
 using MediatR;
-using Microsoft.Extensions.Caching.StackExchangeRedis;
-using Web.Caches;
 using YouJu.Infrastructure.Oss.Qiniu;
 
 namespace Web
@@ -70,25 +68,6 @@ namespace Web
 
             #region 添加httpcontext上下文
             services.AddHttpContextAccessor();
-            #endregion
-
-            #region Redis缓存配置
-            services.AddStackExchangeRedisCache(options =>
-            {
-                options.Configuration = Configuration["Redis:ConnectionString"];
-                options.InstanceName = Configuration["Redis:InstanceName"];
-            });
-
-            // 注册 Redis ConnectionMultiplexer
-            services.AddSingleton<StackExchange.Redis.IConnectionMultiplexer>(provider =>
-            {
-                var connectionString = Configuration["Redis:ConnectionString"];
-                return StackExchange.Redis.ConnectionMultiplexer.Connect(connectionString);
-            });
-
-            // 注册缓存服务和Redis锁服务
-            services.AddScoped<IDistributedCacheService, RedisCacheService>();
-            services.AddScoped<IRedisLockService, RedisLockService>();
             #endregion
 
             #region Swagger配置
@@ -250,6 +229,7 @@ namespace Web
 
             app.UseAuthentication();//使用认证
 
+            app.UseMiddleware<AuditLogMiddleware>();
 
             //app.UseMiddleware<TimestampMiddleware>();
 
